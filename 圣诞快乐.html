@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<!-- 
+    ============================================================================
+    配置说明：
+    ✅ DeepSeek API密钥已配置（第424行）
+    
+    1. API密钥：DEEPSEEK_API_KEY 已填入您的密钥
+       当前值：sk-54080103e6954b16b42817af05a9088b
+    
+    2. API地址：DEEPSEEK_API_URL（约第425行）
+       当前值：https://api.deepseek.com/v1/chat/completions
+    
+    3. 模型名称：DEEPSEEK_MODEL（约第426行）
+       当前值：deepseek-chat
+    
+    4. 纪念日：可以在JavaScript部分（约第430行）的 anniversaries 数组中添加纪念日
+    ============================================================================
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圣诞庆典</title>
+    <style>
+        /* 基础样式重置 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* 页面整体样式 */
+        .christmas-page {
+            height: 100vh;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0a2e38 0%, #1a1a2e 100%);
+        }
+        
+        /* 视频背景容器 */
+        .video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.7) contrast(1.2);
+        }
+        
+        /* 内容区域 */
+        .main-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            padding: 20px;
+        }
+        
+        /* 雪花效果 */
+        .snowflake {
+            position: absolute;
+            color: white;
+            font-size: 1.5rem;
+            user-select: none;
+            z-index: 2;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        
+        /* 新页面容器 - 初始隐藏 */
+        .couple-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            z-index: 10;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            overflow-y: auto;
+        }
+        
+        .couple-page.show {
+            display: flex;
+            flex-direction: column;
+            opacity: 1;
+        }
+        
+        /* 新页面内容容器 */
+        .couple-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* 页面标题 */
+        .page-title {
+            text-align: center;
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            animation: fadeInDown 1s ease-out;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 记录区域 */
+        .memories-section {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .memories-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .memories-header h2 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin: 0;
+        }
+        
+        .add-memory-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .add-memory-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .memories-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .memory-item {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .memory-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .memory-date {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        
+        .memory-content {
+            color: #333;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        .memory-delete {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.1);
+            border: none;
+            color: #ff4444;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .memory-delete:hover {
+            background: rgba(255, 0, 0, 0.2);
+        }
+        
+        /* 添加记录模态框 */
+        .memory-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .memory-modal.show {
+            display: flex;
+        }
+        
+        .memory-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .memory-modal-content h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        
+        .memory-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+        
+        .memory-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .modal-btn-cancel {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .modal-btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        /* 回忆详情模态框 */
+        .memory-detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .memory-detail-modal.show {
+            display: flex;
+        }
+        
+        .memory-detail-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .memory-detail-header {
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .memory-detail-header h3 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+        }
+        
+        .memory-detail-date {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        .memory-detail-text {
+            color: #333;
+            line-height: 1.8;
+            font-size: 1rem;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        
+        /* 留言区域 */
+        .comments-section {
+            margin-top: 25px;
+            border-top: 2px solid #f0f0f0;
+            padding-top: 20px;
+        }
+        
+        .comments-section h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .comment-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .comment-date {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        
+        .comment-text {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .comment-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .comment-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .comment-image:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 添加留言表单 */
+        .add-comment-form {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .comment-input {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        
+        .comment-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .image-upload-area {
+            margin-bottom: 15px;
+        }
+        
+        .image-upload-btn {
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #666;
+        }
+        
+        .image-upload-btn:hover {
+            background: #e8e8e8;
+            border-color: #667eea;
+        }
+        
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+        
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .image-preview-item .remove-image {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .submit-comment-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        .submit-comment-btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* 日历卡片 - 缩小并放在角落 */
+        .calendar-card {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 1s ease-out 0.3s both;
+            width: 300px;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .calendar-card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .calendar-card {
+                position: relative;
+                top: auto;
+                right: auto;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .page-title {
+                font-size: 2rem;
+            }
+            .memories-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .calendar-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        
+        /* 日历样式 */
+        .calendar {
+            width: 100%;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .calendar-nav {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: background 0.3s;
+        }
+        
+        .calendar-nav:hover {
+            background: #5568d3;
+        }
+        
+        .calendar-month {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 5px;
+        }
+        
+        .calendar-weekday {
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+            padding: 5px;
+            font-size: 0.7rem;
+        }
+        
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.75rem;
+        }
+        
+        .calendar-day:hover {
+            background: #f0f0f0;
+        }
+        
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+        
+        .calendar-day.today {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .calendar-day.anniversary {
+            background: #ff6b9d;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* 散布的话语元素 */
+        .floating-message {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+            max-width: 250px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px) scale(0.8);
+            animation: floatIn 1s ease-out forwards, float 3s ease-in-out infinite;
+            z-index: 5;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+        }
+        
+        .floating-message::before {
+            content: '💕';
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        /* 不同位置的话语使用不同的心形图标 */
+        .floating-message:nth-child(1)::before { content: '💕'; }
+        .floating-message:nth-child(2)::before { content: '💖'; }
+        .floating-message:nth-child(3)::before { content: '💗'; }
+        .floating-message:nth-child(4)::before { content: '💝'; }
+        .floating-message:nth-child(5)::before { content: '💞'; }
+        .floating-message:nth-child(6)::before { content: '💓'; }
+        .floating-message:nth-child(7)::before { content: '💕'; }
+        .floating-message:nth-child(8)::before { content: '💖'; }
+        
+        @keyframes floatIn {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-10px) rotate(2deg);
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.8);
+            }
+        }
+        
+        .floating-message.fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+        
+        /* 加载提示 */
+        .loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            font-size: 1.2rem;
+            color: #667eea;
+            display: none;
+        }
+        
+        .loading-indicator.show {
+            display: block;
+            animation: fadeInDown 0.5s ease-out;
+        }
+        
+        .loading-indicator::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        /* 实时时间显示 */
+        .real-time {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .snowflake {
+                font-size: 1.2rem;
+            }
+            .couple-content {
+                padding: 20px 15px;
+            }
+            .calendar-card, .message-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 背景音乐 -->
+    <audio id="backgroundMusic" autoplay loop>
+        <source src="很美味 -不灵不灵.MP3" type="audio/mpeg">
+        <source src="很美味 -不灵不灵.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放
+    </audio>
+    
+    <div class="christmas-page">
+        <div class="video-container">
+            <video id="christmasVideo" autoplay muted playsinline>
+                <source src="圣诞快乐.mp4" type="video/mp4">
+                您的浏览器不支持视频播放
+            </video>
+        </div>
+        
+        <div class="main-content">
+            <!-- 移除了所有文字内容 -->
+        </div>
+    </div>
+    
+    <!-- 新页面：情侣日历和话语 -->
+    <div class="couple-page" id="couplePage">
+        <div class="couple-content">
+            <h1 class="page-title">💕 小星And小智 💕</h1>
+            
+            <div class="real-time" id="realTime"></div>
+            
+            <!-- 记录区域 -->
+            <div class="memories-section">
+                <div class="memories-header">
+                    <h2>📝 我们的故事</h2>
+                    <button class="add-memory-btn" onclick="showAddMemoryModal()">+ 添加回忆</button>
+                </div>
+                <div class="memories-list" id="memoriesList">
+                    <!-- 回忆记录将动态添加到这里 -->
+                </div>
+            </div>
+            
+            <!-- 日历卡片 - 缩小放在右上角 -->
+            <div class="calendar-card">
+                <h2>📅</h2>
+                <div class="calendar" id="calendar"></div>
+            </div>
+            
+            <!-- 散布的话语容器 -->
+            <div id="messagesContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; min-height: 100vh; pointer-events: none;"></div>
+            
+            <!-- 加载提示 -->
+            <div class="loading-indicator" id="loadingIndicator">
+                正在生成温馨的圣诞祝福
+            </div>
+            
+            <!-- 添加记录模态框 -->
+            <div class="memory-modal" id="memoryModal">
+                <div class="memory-modal-content">
+                    <h3>💌 记录我们的回忆</h3>
+                    <textarea class="memory-input" id="memoryInput" placeholder="写下你们的美好瞬间..."></textarea>
+                    <div class="modal-buttons">
+                        <button class="modal-btn modal-btn-cancel" onclick="hideAddMemoryModal()">取消</button>
+                        <button class="modal-btn modal-btn-save" onclick="saveMemory()">保存</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 回忆详情模态框 -->
+            <div class="memory-detail-modal" id="memoryDetailModal">
+                <div class="memory-detail-content">
+                    <div class="memory-detail-header">
+                        <h3 id="detailMemoryTitle">💕 我们的回忆</h3>
+                        <div class="memory-detail-date" id="detailMemoryDate"></div>
+                    </div>
+                    <div class="memory-detail-text" id="detailMemoryContent"></div>
+                    
+                    <div class="comments-section">
+                        <h4>💬 留言</h4>
+                        <div id="commentsList"></div>
+                        
+                        <div class="add-comment-form">
+                            <textarea class="comment-input" id="commentInput" placeholder="写下你的留言..."></textarea>
+                            
+                            <div class="image-upload-area">
+                                <div class="image-upload-btn" onclick="document.getElementById('imageInput').click()">
+                                    📷 点击上传图片
+                                </div>
+                                <input type="file" id="imageInput" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
+                                <div class="image-preview" id="imagePreview"></div>
+                            </div>
+                            
+                            <button class="submit-comment-btn" onclick="submitComment()">发表留言</button>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button class="modal-btn modal-btn-cancel" onclick="hideMemoryDetail()">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ============================================================================
+        // ⚠️⚠️⚠️ 重要配置区域：DeepSeek API密钥配置 ⚠️⚠️⚠️
+        // ============================================================================
+        // 已填入您的DeepSeek API密钥
+        // DeepSeek使用标准的OpenAI兼容API格式
+        // ============================================================================
+        const DEEPSEEK_API_KEY = 'sk-54080103e6954b16b42817af05a9088b';
+        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';  // DeepSeek API地址
+        const DEEPSEEK_MODEL = 'deepseek-chat';  // DeepSeek模型名称
+        // ============================================================================
+        
+        // 当前显示的月份和年份
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        
+        // 起始日期：2025年8月22日
+        const startDate = new Date(2025, 7, 22); // 月份从0开始，所以7表示8月
+        
+        // 跟踪已使用的位置，避免重叠
+        const usedPositions = [];
+        
+        // 计算从起始日期到现在的天数
+        function getDaysSinceStart() {
+            const now = new Date();
+            const diffTime = now - startDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+        
+        // 纪念日（可以自定义添加）
+        const anniversaries = [
+            { month: 8, day: 22, name: '开始的日子' }, // 2025年8月22日
+            { month: 12, day: 25, name: '圣诞节' },
+            // 可以在这里添加更多纪念日，例如：
+            // { month: 1, day: 1, name: '元旦' },
+            // { month: 2, day: 14, name: '情人节' },
+        ];
+        
+        // 创建雪花效果
+        function createSnowflakes() {
+            const snowflakesContainer = document.createElement('div');
+            snowflakesContainer.className = 'snowflakes-container';
+            document.querySelector('.christmas-page').appendChild(snowflakesContainer);
+            
+            const snowflakeSymbols = ['❄', '❅', '❆', '•', '*'];
+            
+            for (let i = 0; i < 80; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = snowflakeSymbols[Math.floor(Math.random() * snowflakeSymbols.length)];
+                
+                // 随机位置
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                
+                // 随机大小
+                const size = Math.random() * 1.5 + 0.8;
+                snowflake.style.fontSize = size + 'rem';
+                
+                // 随机透明度
+                snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+                
+                // 随机动画时长
+                const duration = Math.random() * 10 + 5;
+                snowflake.style.animationDuration = duration + 's';
+                
+                // 随机延迟
+                snowflake.style.animationDelay = Math.random() * 5 + 's';
+                
+                snowflakesContainer.appendChild(snowflake);
+            }
+        }
+        
+        // 视频播放结束，显示新页面
+        function showCouplePage() {
+            const couplePage = document.getElementById('couplePage');
+            couplePage.classList.add('show');
+            initCalendar();
+            updateRealTime();
+            renderMemories(); // 渲染回忆列表
+            // 自动生成多条祝福语并散布在屏幕上
+            generateMultipleMessages();
+        }
+        
+        // 更新实时时间
+        function updateRealTime() {
+            const realTimeEl = document.getElementById('realTime');
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                weekday: 'long'
+            };
+            
+            // 计算从2025年8月22日到现在已经过了多少天
+            const daysSinceStart = getDaysSinceStart();
+            const daysText = daysSinceStart >= 0 
+                ? `💕 我们已经在一起 ${daysSinceStart} 天了 💕` 
+                : `💕 距离开始还有 ${Math.abs(daysSinceStart)} 天 💕`;
+            
+            realTimeEl.innerHTML = `
+                <div style="margin-bottom: 10px;">${daysText}</div>
+                <div style="font-size: 0.9em; opacity: 0.9;">🕐 ${now.toLocaleDateString('zh-CN', options)}</div>
+            `;
+            
+            // 每秒更新一次
+            setTimeout(updateRealTime, 1000);
+        }
+        
+        // 初始化日历
+        function initCalendar() {
+            renderCalendar();
+        }
+        
+        // 渲染日历
+        function renderCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            const today = new Date();
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+            
+            // 星期数组
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            
+            let html = `
+                <div class="calendar-header">
+                    <button class="calendar-nav" onclick="previousMonth()">‹ 上月</button>
+                    <div class="calendar-month">${currentYear}年 ${currentMonth + 1}月</div>
+                    <button class="calendar-nav" onclick="nextMonth()">下月 ›</button>
+                </div>
+                <div class="calendar-weekdays">
+            `;
+            
+            // 星期标题
+            weekdays.forEach(day => {
+                html += `<div class="calendar-weekday">${day}</div>`;
+            });
+            html += `</div><div class="calendar-days">`;
+            
+            // 上个月的日期
+            const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+            for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+                html += `<div class="calendar-day other-month">${prevMonthLastDay - i}</div>`;
+            }
+            
+            // 当前月的日期
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = today.getDate() === day && 
+                               today.getMonth() === currentMonth && 
+                               today.getFullYear() === currentYear;
+                const isAnniversary = anniversaries.some(a => 
+                    a.month === currentMonth + 1 && a.day === day
+                );
+                
+                let dayClass = 'calendar-day';
+                if (isToday) dayClass += ' today';
+                if (isAnniversary) dayClass += ' anniversary';
+                
+                html += `<div class="${dayClass}">${day}</div>`;
+            }
+            
+            // 下个月的日期（填充剩余格子）
+            const totalCells = startingDayOfWeek + daysInMonth;
+            const remainingCells = 42 - totalCells; // 6行 x 7列 = 42
+            for (let day = 1; day <= remainingCells && day <= 14; day++) {
+                html += `<div class="calendar-day other-month">${day}</div>`;
+            }
+            
+            html += `</div>`;
+            calendarEl.innerHTML = html;
+        }
+        
+        // 上一个月
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+        
+        // 下一个月
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+        
+        // 生成HMAC-SHA256签名
+        async function generateSignature(secretKey, stringToSign) {
+            const encoder = new TextEncoder();
+            const keyData = encoder.encode(secretKey);
+            const messageData = encoder.encode(stringToSign);
+            
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+            
+            const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+            const hashArray = Array.from(new Uint8Array(signature));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+        
+        // 生成请求签名（火山引擎签名算法）
+        async function generateRequestSignature(method, uri, query, headers, body, secretKey) {
+            // 构建规范请求
+            const canonicalUri = uri;
+            const canonicalQueryString = query || '';
+            
+            // 规范头部
+            const canonicalHeaders = Object.keys(headers)
+                .sort()
+                .map(key => `${key.toLowerCase()}:${headers[key]}\n`)
+                .join('');
+            
+            const signedHeaders = Object.keys(headers)
+                .sort()
+                .map(key => key.toLowerCase())
+                .join(';');
+            
+            // 请求体哈希
+            const hashedPayload = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(body || ''));
+            const payloadHash = Array.from(new Uint8Array(hashedPayload))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+            
+            // 构建待签名字符串
+            const canonicalRequest = `${method}\n${canonicalUri}\n${canonicalQueryString}\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
+            
+            // 生成签名
+            const signature = await generateSignature(secretKey, canonicalRequest);
+            return signature;
+        }
+        
+        // 存储回忆记录
+        let memories = JSON.parse(localStorage.getItem('coupleMemories') || '[]');
+        
+        // 确保旧数据兼容性：为没有comments字段的回忆添加空数组
+        memories.forEach(memory => {
+            if (!memory.comments) {
+                memory.comments = [];
+            }
+        });
+        if (memories.length > 0) {
+            localStorage.setItem('coupleMemories', JSON.stringify(memories));
+        }
+        
+        // 显示添加回忆模态框
+        function showAddMemoryModal() {
+            document.getElementById('memoryModal').classList.add('show');
+            document.getElementById('memoryInput').focus();
+        }
+        
+        // 隐藏添加回忆模态框
+        function hideAddMemoryModal() {
+            document.getElementById('memoryModal').classList.remove('show');
+            document.getElementById('memoryInput').value = '';
+        }
+        
+        // 保存回忆
+        function saveMemory() {
+            const content = document.getElementById('memoryInput').value.trim();
+            if (!content) {
+                alert('请输入回忆内容');
+                return;
+            }
+            
+            const memory = {
+                id: Date.now(),
+                content: content,
+                date: new Date().toLocaleString('zh-CN'),
+                comments: [] // 初始化留言数组
+            };
+            
+            memories.unshift(memory); // 添加到开头
+            localStorage.setItem('coupleMemories', JSON.stringify(memories));
+            renderMemories();
+            hideAddMemoryModal();
+        }
+        
+        // 删除回忆
+        function deleteMemory(id) {
+            if (confirm('确定要删除这条回忆吗？')) {
+                memories = memories.filter(m => m.id !== id);
+                localStorage.setItem('coupleMemories', JSON.stringify(memories));
+                renderMemories();
+            }
+        }
+        
+        // 当前查看的回忆ID
+        let currentMemoryId = null;
+        let currentImageFiles = [];
+        
+        // 打开回忆详情
+        function openMemoryDetail(id) {
+            const memory = memories.find(m => m.id === id);
+            if (!memory) return;
+            
+            currentMemoryId = id;
+            currentImageFiles = [];
+            
+            // 填充详情内容
+            document.getElementById('detailMemoryDate').textContent = memory.date;
+            document.getElementById('detailMemoryContent').textContent = memory.content;
+            
+            // 渲染留言
+            renderComments(memory.comments || []);
+            
+            // 清空表单
+            document.getElementById('commentInput').value = '';
+            document.getElementById('imagePreview').innerHTML = '';
+            
+            // 显示模态框
+            document.getElementById('memoryDetailModal').classList.add('show');
+        }
+        
+        // 关闭回忆详情
+        function hideMemoryDetail() {
+            document.getElementById('memoryDetailModal').classList.remove('show');
+            currentMemoryId = null;
+            currentImageFiles = [];
+        }
+        
+        // 渲染留言列表
+        function renderComments(comments) {
+            const commentsList = document.getElementById('commentsList');
+            if (!comments || comments.length === 0) {
+                commentsList.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">还没有留言，快来第一条吧~</div>';
+                return;
+            }
+            
+            commentsList.innerHTML = comments.map(comment => `
+                <div class="comment-item">
+                    <div class="comment-date">${comment.date}</div>
+                    <div class="comment-text">${comment.text}</div>
+                    ${comment.images && comment.images.length > 0 ? `
+                        <div class="comment-images">
+                            ${comment.images.map(img => `
+                                <img src="${img}" alt="图片" class="comment-image" onclick="showImageModal('${img}')">
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // 处理图片上传
+        function handleImageUpload(event) {
+            const files = Array.from(event.target.files);
+            const preview = document.getElementById('imagePreview');
+            
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageData = e.target.result;
+                        currentImageFiles.push(imageData);
+                        
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'image-preview-item';
+                        previewItem.innerHTML = `
+                            <img src="${imageData}" alt="预览">
+                            <button class="remove-image" onclick="removePreviewImage(this, '${imageData}')">×</button>
+                        `;
+                        preview.appendChild(previewItem);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // 移除预览图片
+        function removePreviewImage(button, imageData) {
+            currentImageFiles = currentImageFiles.filter(img => img !== imageData);
+            button.parentElement.remove();
+        }
+        
+        // 提交留言
+        function submitComment() {
+            const commentText = document.getElementById('commentInput').value.trim();
+            if (!commentText && currentImageFiles.length === 0) {
+                alert('请输入留言或上传图片');
+                return;
+            }
+            
+            const memory = memories.find(m => m.id === currentMemoryId);
+            if (!memory) return;
+            
+            if (!memory.comments) {
+                memory.comments = [];
+            }
+            
+            const comment = {
+                id: Date.now(),
+                text: commentText,
+                date: new Date().toLocaleString('zh-CN'),
+                images: [...currentImageFiles]
+            };
+            
+            memory.comments.push(comment);
+            localStorage.setItem('coupleMemories', JSON.stringify(memories));
+            
+            // 重新渲染留言
+            renderComments(memory.comments);
+            
+            // 清空表单
+            document.getElementById('commentInput').value = '';
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('imageInput').value = '';
+            currentImageFiles = [];
+        }
+        
+        // 显示图片大图
+        function showImageModal(imageSrc) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 2000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            `;
+            modal.onclick = () => modal.remove();
+            
+            const img = document.createElement('img');
+            img.src = imageSrc;
+            img.style.cssText = 'max-width: 90%; max-height: 90%; object-fit: contain;';
+            modal.appendChild(img);
+            document.body.appendChild(modal);
+        }
+        
+        // 渲染回忆列表
+        function renderMemories() {
+            const memoriesList = document.getElementById('memoriesList');
+            if (memories.length === 0) {
+                memoriesList.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.7); padding: 40px;">还没有回忆，点击上方按钮添加第一条吧~</div>';
+                return;
+            }
+            
+            memoriesList.innerHTML = memories.map(memory => `
+                <div class="memory-item" onclick="openMemoryDetail(${memory.id})">
+                    <button class="memory-delete" onclick="event.stopPropagation(); deleteMemory(${memory.id})">×</button>
+                    <div class="memory-date">${memory.date}</div>
+                    <div class="memory-content">${memory.content}</div>
+                    ${memory.comments && memory.comments.length > 0 ? `
+                        <div style="margin-top: 10px; font-size: 0.85rem; color: #667eea;">
+                            💬 ${memory.comments.length} 条留言
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // 调用DeepSeek API生成单条圣诞祝福语（多样化，只生成一句话）
+        async function generateSingleMessage(index) {
+            try {
+                // 多样化的提示词模板，确保只生成一句话
+                const promptTemplates = [
+                    `请生成一句${['温馨浪漫', '甜蜜动人', '深情款款', '温暖如春'][index % 4]}的圣诞节情侣祝福语，要求：只生成一句话，${['温馨浪漫', '甜蜜动人', '深情款款', '温暖如春'][index % 4]}，适合情侣之间，包含圣诞元素，20-40字，表达对彼此的爱意和圣诞祝福，语言优美${['有诗意', '有画面感', '充满情感', '真挚动人'][index % 4]}。只输出这一句话，不要其他内容。`,
+                    `请创作一句${['别具一格', '独特新颖', '富有创意', '与众不同'][index % 4]}的圣诞节情侣祝福语，${['可以是对话形式', '可以是诗歌形式', '可以是内心独白', '可以是许愿形式'][index % 4]}，要求：只生成一句话，语言${['温馨', '甜蜜', '深情', '温暖'][index % 4]}，包含圣诞元素，20-40字，表达爱意和祝福，语言优美。只输出这一句话。`,
+                    `请写一句${['浪漫', '甜蜜', '温馨', '深情'][index % 4]}的圣诞节情侣祝福语，${['可以提到雪花', '可以提到星光', '可以提到礼物', '可以提到圣诞树'][index % 4]}，要求：只生成一句话，适合情侣之间，包含圣诞元素，20-40字，表达爱意，语言优美有诗意。只输出这一句话。`,
+                    `请生成一句${['充满爱意', '温暖人心', '甜蜜浪漫', '深情款款'][index % 4]}的圣诞节情侣祝福语，${['风格可以是', '语调可以是', '情感可以是', '表达方式可以是'][index % 4]}${['温柔细腻', '热情洋溢', '深情内敛', '浪漫奔放'][index % 4]}，要求：只生成一句话，适合情侣，有圣诞元素，20-40字，表达祝福和爱意，语言优美。只输出这一句话。`
+                ];
+                
+                // 随机选择提示词模板，并添加更多变化
+                const basePrompt = promptTemplates[index % promptTemplates.length];
+                const randomVariations = [
+                    '请用不同的表达方式，确保与之前生成的内容风格不同',
+                    '请避免使用常见的祝福语，创作独特的表达',
+                    '请用新颖的比喻，确保与之前生成的内容风格不同',
+                    '请用不同的角度，确保与之前生成的内容风格不同',
+                    '请创作独特的表达，确保与之前生成的内容风格不同'
+                ];
+                const prompt = basePrompt + '。' + randomVariations[index % randomVariations.length] + '。';
+
+                // 构建请求体 - 使用更高的temperature增加多样性，减少max_tokens因为只需要一句话
+                const requestBody = {
+                    model: DEEPSEEK_MODEL,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    temperature: 0.95 + (index * 0.01), // 每个消息使用不同的temperature
+                    max_tokens: 50, // 只需要一句话，减少token数
+                    top_p: 0.9
+                };
+                
+                // 构建请求头 - DeepSeek使用标准的Bearer Token认证
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                };
+
+                // 调用DeepSeek API
+                const response = await fetch(DEEPSEEK_API_URL, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // 提取生成的文本（DeepSeek使用标准的OpenAI格式）
+                let message = '';
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    message = data.choices[0].message.content.trim();
+                    // 如果生成的内容包含多句话，只取第一句
+                    const sentences = message.split(/[。！？\n]/).filter(s => s.trim().length > 0);
+                    if (sentences.length > 0) {
+                        message = sentences[0].trim();
+                        // 如果第一句没有标点，添加句号
+                        if (!/[。！？]$/.test(message)) {
+                            message += '。';
+                        }
+                    }
+                } else {
+                    console.log('API响应数据:', data);
+                    // 如果无法解析，使用备用祝福语
+                    message = '在这个温馨的圣诞夜，愿我们的爱情如雪花般纯洁，如星光般闪耀，永远相伴，圣诞快乐！';
+                }
+                
+                return message;
+                
+            } catch (error) {
+                console.error('生成祝福语失败:', error);
+                // 返回备用祝福语（一句话）
+                const fallbackMessages = [
+                    '在这个温馨的圣诞夜，愿我们的爱情如雪花般纯洁，如星光般闪耀，永远相伴，圣诞快乐！',
+                    '圣诞的钟声响起，愿我们的爱情如圣诞树上的彩灯，永远闪闪发光，温暖彼此的心房。',
+                    '雪花飘落的季节，我想对你说：有你陪伴的每一天，都是我最珍贵的圣诞礼物。',
+                    '愿这个圣诞，我们的爱情如雪花般纯净，如星光般璀璨，永远相守，永不分离。',
+                    '圣诞的夜晚，有你在身边，就是我最想要的礼物。愿我们的爱情永远如初，圣诞快乐！'
+                ];
+                return fallbackMessages[index % fallbackMessages.length];
+            }
+        }
+        
+        // 检查位置是否与已使用的位置重叠
+        function isPositionOverlapping(x, y, usedPositions, minDistance = 15) {
+            for (const used of usedPositions) {
+                const distance = Math.sqrt(Math.pow(x - used.x, 2) + Math.pow(y - used.y, 2));
+                if (distance < minDistance) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // 在屏幕上创建散布的话语元素
+        function createFloatingMessage(text, index, total) {
+            const container = document.getElementById('messagesContainer');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'floating-message';
+            messageEl.textContent = text;
+            
+            // 预定义的位置区域（百分比）- 只使用左上角、左下角、右下角
+            const basePositions = [
+                // 左上角区域（多个位置避免重叠）
+                { x: 5, y: 10 },
+                { x: 8, y: 15 },
+                { x: 12, y: 20 },
+                // 左下角区域（多个位置避免重叠）
+                { x: 5, y: 65 },
+                { x: 8, y: 70 },
+                { x: 12, y: 75 },
+                // 右下角区域（多个位置避免重叠）
+                { x: 75, y: 65 },
+                { x: 78, y: 70 },
+                { x: 82, y: 75 }
+            ];
+            
+            // 尝试找到一个不重叠的位置
+            let finalX, finalY;
+            let attempts = 0;
+            const maxAttempts = 50;
+            
+            do {
+                // 根据索引选择区域：0,1在左上角，2,3在左下角，4在右下角
+                let areaIndex;
+                if (index < 2) {
+                    // 左上角（前2个）
+                    areaIndex = index;
+                } else if (index < 4) {
+                    // 左下角（第3、4个）
+                    areaIndex = 3 + (index - 2);
+                } else {
+                    // 右下角（第5个）
+                    areaIndex = 6 + (index - 4);
+                }
+                
+                const basePos = basePositions[areaIndex % basePositions.length];
+                
+                // 添加随机偏移，但限制范围避免重叠，且确保在对应区域内
+                const offsetX = (Math.random() - 0.5) * 6; // 减少偏移范围
+                const offsetY = (Math.random() - 0.5) * 6;
+                
+                // 限制在对应区域内
+                if (index < 2) {
+                    // 左上角：x < 20%, y < 30%
+                    finalX = Math.max(3, Math.min(18, basePos.x + offsetX));
+                    finalY = Math.max(5, Math.min(28, basePos.y + offsetY));
+                } else if (index < 4) {
+                    // 左下角：x < 20%, y > 60%
+                    finalX = Math.max(3, Math.min(18, basePos.x + offsetX));
+                    finalY = Math.max(60, Math.min(85, basePos.y + offsetY));
+                } else {
+                    // 右下角：x > 70%, y > 60%
+                    finalX = Math.max(70, Math.min(90, basePos.x + offsetX));
+                    finalY = Math.max(60, Math.min(85, basePos.y + offsetY));
+                }
+                
+                attempts++;
+                
+                // 如果尝试次数太多，使用基础位置
+                if (attempts >= maxAttempts) {
+                    finalX = basePos.x;
+                    finalY = basePos.y;
+                    break;
+                }
+            } while (isPositionOverlapping(finalX, finalY, usedPositions, 12));
+            
+            // 记录使用的位置
+            usedPositions.push({ x: finalX, y: finalY });
+            
+            messageEl.style.left = finalX + '%';
+            messageEl.style.top = finalY + '%';
+            
+            // 随机延迟显示，形成依次出现的效果
+            messageEl.style.animationDelay = (index * 0.3) + 's';
+            
+            // 随机旋转角度
+            const rotation = (Math.random() - 0.5) * 8;
+            messageEl.style.transform = `translateY(0) scale(1) rotate(${rotation}deg)`;
+            
+            container.appendChild(messageEl);
+            
+            // 10秒后自动消失
+            setTimeout(() => {
+                messageEl.classList.add('fade-out');
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    if (messageEl.parentNode) {
+                        messageEl.parentNode.removeChild(messageEl);
+                    }
+                    // 从已使用位置中移除
+                    const posIndex = usedPositions.findIndex(p => 
+                        Math.abs(p.x - finalX) < 1 && Math.abs(p.y - finalY) < 1
+                    );
+                    if (posIndex > -1) {
+                        usedPositions.splice(posIndex, 1);
+                    }
+                }, 500); // 等待淡出动画完成
+            }, 10000); // 10秒
+        }
+        
+        // 自动生成多条祝福语并散布在屏幕上
+        async function generateMultipleMessages() {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const messagesContainer = document.getElementById('messagesContainer');
+            
+            // 显示加载提示
+            loadingIndicator.classList.add('show');
+            
+            // 生成5条祝福语
+            const messageCount = 5;
+            const messages = [];
+            
+            // 并发生成多条消息，传递index确保每条消息都不同
+            const promises = [];
+            for (let i = 0; i < messageCount; i++) {
+                promises.push(generateSingleMessage(i));
+            }
+            
+            try {
+                messages.push(...await Promise.all(promises));
+            } catch (error) {
+                console.error('批量生成失败:', error);
+                // 使用备用祝福语（一句话）
+                const fallbackMessages = [
+                    '在这个温馨的圣诞夜，愿我们的爱情如雪花般纯洁，如星光般闪耀，永远相伴，圣诞快乐！',
+                    '圣诞的钟声响起，愿我们的爱情如圣诞树上的彩灯，永远闪闪发光，温暖彼此的心房。',
+                    '雪花飘落的季节，我想对你说：有你陪伴的每一天，都是我最珍贵的圣诞礼物。',
+                    '愿这个圣诞，我们的爱情如雪花般纯净，如星光般璀璨，永远相守，永不分离。',
+                    '圣诞的夜晚，有你在身边，就是我最想要的礼物。愿我们的爱情永远如初，圣诞快乐！'
+                ];
+                messages.push(...fallbackMessages.slice(0, messageCount));
+            }
+            
+            // 隐藏加载提示
+            loadingIndicator.classList.remove('show');
+            
+            // 依次创建散布的话语元素
+            messages.forEach((message, index) => {
+                setTimeout(() => {
+                    createFloatingMessage(message, index, messages.length);
+                }, index * 200); // 每200ms创建一个，形成依次出现的效果
+            });
+        }
+        
+        // 播放背景音乐
+        function playBackgroundMusic() {
+            const music = document.getElementById('backgroundMusic');
+            if (music) {
+                // 尝试播放音乐
+                const playPromise = music.play();
+                
+                // 如果播放失败（由于浏览器自动播放策略），尝试在用户交互后播放
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('自动播放被阻止，等待用户交互...');
+                        // 添加点击事件，用户点击页面后播放
+                        const playOnInteraction = () => {
+                            music.play().catch(err => {
+                                console.log('音乐播放失败:', err);
+                            });
+                            // 移除事件监听器，只播放一次
+                            document.removeEventListener('click', playOnInteraction);
+                            document.removeEventListener('touchstart', playOnInteraction);
+                        };
+                        document.addEventListener('click', playOnInteraction);
+                        document.addEventListener('touchstart', playOnInteraction);
+                    });
+                }
+            }
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnowflakes();
+            
+            // 播放背景音乐
+            playBackgroundMusic();
+            
+            // 页面加载时立即开始生成祝福语
+            generateMultipleMessages();
+            
+            // 监听视频播放结束
+            const video = document.getElementById('christmasVideo');
+            video.addEventListener('ended', function() {
+                // 延迟1秒后显示新页面，增加过渡效果
+                setTimeout(showCouplePage, 1000);
+            });
+            
+            // 如果视频加载失败或无法播放，也可以直接显示页面（用于测试）
+            // showCouplePage(); // 取消注释此行可以跳过视频直接测试页面
+        });
+    </script>
+</body>
+</html>

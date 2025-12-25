@@ -888,6 +888,15 @@
                 padding: 15px 30px;
                 font-size: 1rem;
             }
+            
+            /* 音乐控制按钮 */
+            #musicControl {
+                width: 50px;
+                height: 50px;
+                bottom: 15px;
+                right: 15px;
+                font-size: 20px;
+            }
         }
         
         /* 超小屏幕优化 */
@@ -974,11 +983,16 @@
 
 <body>
     <!-- 背景音乐 -->
-    <audio id="backgroundMusic" autoplay loop>
+    <audio id="backgroundMusic" loop preload="auto">
         <source src="很美味 -不灵不灵.MP3" type="audio/mpeg">
         <source src="很美味 -不灵不灵.mp3" type="audio/mpeg">
         您的浏览器不支持音频播放
     </audio>
+    
+    <!-- 音乐播放控制按钮 -->
+    <div id="musicControl" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; background: rgba(102, 126, 234, 0.9); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 24px; transition: all 0.3s;">
+        🔊
+    </div>
     
     <div class="christmas-page">
         <div class="video-container">
@@ -1930,29 +1944,91 @@
         }
         
         // 播放背景音乐
-        function playBackgroundMusic() {
+        async function playBackgroundMusic() {
             const music = document.getElementById('backgroundMusic');
-            if (music) {
-                // 尝试播放音乐
-                const playPromise = music.play();
-                
-                // 如果播放失败（由于浏览器自动播放策略），尝试在用户交互后播放
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        console.log('自动播放被阻止，等待用户交互...');
-                        // 添加点击事件，用户点击页面后播放
-                        const playOnInteraction = () => {
-                            music.play().catch(err => {
-                                console.log('音乐播放失败:', err);
-                            });
-                            // 移除事件监听器，只播放一次
-                            document.removeEventListener('click', playOnInteraction);
-                            document.removeEventListener('touchstart', playOnInteraction);
-                        };
-                        document.addEventListener('click', playOnInteraction);
-                        document.addEventListener('touchstart', playOnInteraction);
-                    });
+            const musicControl = document.getElementById('musicControl');
+            
+            if (!music) return;
+            
+            // 设置音量（0-1之间）
+            music.volume = 0.7;
+            
+            // 尝试播放音乐
+            try {
+                await music.play();
+                // 播放成功，更新按钮状态
+                if (musicControl) {
+                    musicControl.textContent = '🔊';
+                    musicControl.title = '点击暂停音乐';
                 }
+                console.log('音乐播放成功');
+            } catch (error) {
+                console.log('自动播放被阻止，需要用户交互');
+                // 显示播放按钮提示
+                if (musicControl) {
+                    musicControl.textContent = '🔇';
+                    musicControl.title = '点击播放音乐';
+                    musicControl.style.display = 'flex';
+                }
+            }
+        }
+        
+        // 切换音乐播放/暂停
+        function toggleMusic() {
+            const music = document.getElementById('backgroundMusic');
+            const musicControl = document.getElementById('musicControl');
+            
+            if (!music) return;
+            
+            if (music.paused) {
+                music.play().then(() => {
+                    if (musicControl) {
+                        musicControl.textContent = '🔊';
+                        musicControl.title = '点击暂停音乐';
+                    }
+                }).catch(err => {
+                    console.log('播放失败:', err);
+                    alert('无法播放音乐，请检查浏览器设置');
+                });
+            } else {
+                music.pause();
+                if (musicControl) {
+                    musicControl.textContent = '🔇';
+                    musicControl.title = '点击播放音乐';
+                }
+            }
+        }
+        
+        // 监听视频播放，尝试解锁音频
+        function setupVideoAudioUnlock() {
+            const video = document.getElementById('christmasVideo');
+            if (video) {
+                // 视频开始播放时尝试播放音频
+                video.addEventListener('play', async () => {
+                    const music = document.getElementById('backgroundMusic');
+                    if (music && music.paused) {
+                        try {
+                            await music.play();
+                            const musicControl = document.getElementById('musicControl');
+                            if (musicControl) {
+                                musicControl.textContent = '🔊';
+                                musicControl.title = '点击暂停音乐';
+                            }
+                        } catch (e) {
+                            console.log('视频播放时无法自动播放音频');
+                        }
+                    }
+                });
+                
+                // 视频播放结束后，确保音频继续播放
+                video.addEventListener('ended', () => {
+                    const music = document.getElementById('backgroundMusic');
+                    if (music && music.paused) {
+                        music.play().catch(() => {
+                            console.log('视频结束后无法自动播放音频');
+                        });
+                    }
+                });
             }
         }
         
@@ -1960,8 +2036,48 @@
         document.addEventListener('DOMContentLoaded', async function() {
             createSnowflakes();
             
-            // 播放背景音乐
-            playBackgroundMusic();
+            // 设置音乐控制按钮
+            const musicControl = document.getElementById('musicControl');
+            if (musicControl) {
+                musicControl.addEventListener('click', toggleMusic);
+                // 初始状态隐藏，如果自动播放失败再显示
+                musicControl.style.display = 'none';
+            }
+            
+            // 尝试播放背景音乐
+            await playBackgroundMusic();
+            
+            // 设置视频音频解锁
+            setupVideoAudioUnlock();
+            
+            // 添加页面点击事件，用户点击任意位置时尝试播放音乐
+            let musicPlayed = false;
+            const tryPlayOnClick = async () => {
+                if (!musicPlayed) {
+                    const music = document.getElementById('backgroundMusic');
+                    if (music && music.paused) {
+                        try {
+                            await music.play();
+                            musicPlayed = true;
+                            if (musicControl) {
+                                musicControl.textContent = '🔊';
+                                musicControl.title = '点击暂停音乐';
+                                musicControl.style.display = 'flex';
+                            }
+                            // 移除事件监听器
+                            document.removeEventListener('click', tryPlayOnClick);
+                            document.removeEventListener('touchstart', tryPlayOnClick);
+                        } catch (e) {
+                            // 播放失败，显示控制按钮
+                            if (musicControl) {
+                                musicControl.style.display = 'flex';
+                            }
+                        }
+                    }
+                }
+            };
+            document.addEventListener('click', tryPlayOnClick);
+            document.addEventListener('touchstart', tryPlayOnClick);
             
             // 页面加载时从 GitHub 加载回忆数据（如果配置了 token）
             await loadMemoriesFromGitHub();

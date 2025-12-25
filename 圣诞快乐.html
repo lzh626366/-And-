@@ -19,7 +19,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>圣诞庆典</title>
     <style>
         /* 基础样式重置 */
@@ -547,21 +549,7 @@
             text-align: center;
         }
         
-        @media (max-width: 768px) {
-            .calendar-card {
-                position: relative;
-                top: auto;
-                right: auto;
-                width: 100%;
-                margin-bottom: 20px;
-            }
-            .page-title {
-                font-size: 2rem;
-            }
-            .memories-list {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* 这个响应式规则已合并到下面的完整移动端优化中 */
         
         @keyframes fadeInUp {
             from {
@@ -776,16 +764,209 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
         
-        /* 响应式调整 */
+        /* 响应式调整 - 移动端优化 */
         @media (max-width: 768px) {
             .snowflake {
                 font-size: 1.2rem;
             }
             .couple-content {
-                padding: 20px 15px;
+                padding: 15px 10px;
             }
             .calendar-card, .message-card {
-                padding: 20px;
+                padding: 15px;
+            }
+            
+            /* 日历卡片移动端位置 */
+            .calendar-card {
+                position: relative;
+                top: auto;
+                right: auto;
+                width: 100%;
+                margin-bottom: 20px;
+                max-width: 100%;
+            }
+            
+            /* 页面标题 */
+            .page-title {
+                font-size: 1.8rem;
+                letter-spacing: 1px;
+                margin-bottom: 20px;
+            }
+            
+            /* 实时时间 */
+            .real-time {
+                font-size: 1rem;
+                margin-bottom: 15px;
+                padding: 0 10px;
+            }
+            
+            /* 记录区域 */
+            .memories-section {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .memories-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .memories-header h2 {
+                font-size: 1.4rem;
+            }
+            
+            .add-memory-btn {
+                width: 100%;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .memories-list {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                max-height: none;
+            }
+            
+            .memory-item {
+                padding: 15px;
+            }
+            
+            .memory-content {
+                font-size: 0.9rem;
+            }
+            
+            /* 模态框 */
+            .memory-modal-content,
+            .memory-detail-content {
+                padding: 20px 15px;
+                max-width: 95%;
+                max-height: 90vh;
+            }
+            
+            .memory-input,
+            .comment-input {
+                font-size: 0.9rem;
+                padding: 12px;
+                min-height: 100px;
+            }
+            
+            /* 留言区域 */
+            .comments-section {
+                margin-top: 20px;
+                padding-top: 15px;
+            }
+            
+            .comment-item {
+                padding: 12px;
+            }
+            
+            .comment-image {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .image-preview-item {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .image-preview-item img {
+                width: 100%;
+                height: 100%;
+            }
+            
+            /* 浮动消息 */
+            .floating-message {
+                max-width: 200px;
+                padding: 12px 15px;
+                font-size: 0.85rem;
+            }
+            
+            /* 加载提示 */
+            .loading-indicator {
+                padding: 15px 30px;
+                font-size: 1rem;
+            }
+        }
+        
+        /* 超小屏幕优化 */
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            
+            .real-time {
+                font-size: 0.9rem;
+            }
+            
+            .memories-section {
+                padding: 15px 10px;
+            }
+            
+            .memories-header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .memory-item {
+                padding: 12px;
+            }
+            
+            .memory-content {
+                font-size: 0.85rem;
+            }
+            
+            .floating-message {
+                max-width: 160px;
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .calendar-card {
+                padding: 12px;
+            }
+            
+            .calendar-card h2 {
+                font-size: 1rem;
+            }
+            
+            .calendar-month {
+                font-size: 0.8rem;
+            }
+            
+            .calendar-nav {
+                padding: 3px 6px;
+                font-size: 0.7rem;
+            }
+            
+            .calendar-weekday {
+                padding: 4px;
+                font-size: 0.65rem;
+            }
+            
+            .calendar-day {
+                font-size: 0.7rem;
+            }
+        }
+        
+        /* 横屏优化 */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .couple-content {
+                padding: 10px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            
+            .memories-section {
+                padding: 15px;
+            }
+            
+            .memories-list {
+                max-height: 300px;
             }
         }
     </style>
@@ -902,6 +1083,20 @@
         const DEEPSEEK_API_KEY = 'sk-54080103e6954b16b42817af05a9088b';
         const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';  // DeepSeek API地址
         const DEEPSEEK_MODEL = 'deepseek-chat';  // DeepSeek模型名称
+        
+        // ============================================================================
+        // GitHub 数据同步配置（可选）
+        // ============================================================================
+        // 如果需要让其他人也能看到回忆，请配置 GitHub Personal Access Token
+        // 1. 访问 https://github.com/settings/tokens
+        // 2. 点击 "Generate new token (classic)"
+        // 3. 勾选 "repo" 权限
+        // 4. 将生成的 token 填入下面的 GITHUB_TOKEN
+        // 5. 数据将保存到 GitHub 仓库的 memories.json 文件中
+        // ============================================================================
+        const GITHUB_TOKEN = '';  // ⚠️ 可选：填入您的 GitHub Personal Access Token（如果需要同步数据）
+        const GITHUB_REPO = 'lzh626366/-And-';  // GitHub 仓库名
+        const GITHUB_FILE = 'memories.json';  // 保存数据的文件名
         // ============================================================================
         
         // 当前显示的月份和年份
@@ -966,11 +1161,15 @@
         }
         
         // 视频播放结束，显示新页面
-        function showCouplePage() {
+        async function showCouplePage() {
             const couplePage = document.getElementById('couplePage');
             couplePage.classList.add('show');
             initCalendar();
             updateRealTime();
+            
+            // 从 GitHub 加载回忆数据（如果配置了 token）
+            await loadMemoriesFromGitHub();
+            
             renderMemories(); // 渲染回忆列表
             // 自动生成多条祝福语并散布在屏幕上
             generateMultipleMessages();
@@ -1154,6 +1353,106 @@
             localStorage.setItem('coupleMemories', JSON.stringify(memories));
         }
         
+        // GitHub API 函数：从 GitHub 读取数据
+        async function loadMemoriesFromGitHub() {
+            if (!GITHUB_TOKEN) {
+                console.log('未配置 GitHub Token，使用本地存储');
+                return;
+            }
+            
+            try {
+                const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = atob(data.content.replace(/\s/g, '')); // 解码 base64
+                    const githubMemories = JSON.parse(content);
+                    
+                    // 合并本地和 GitHub 的数据（GitHub 优先）
+                    if (githubMemories && githubMemories.length > 0) {
+                        memories = githubMemories;
+                        localStorage.setItem('coupleMemories', JSON.stringify(memories));
+                        renderMemories();
+                        console.log('从 GitHub 加载了回忆数据');
+                    }
+                } else if (response.status === 404) {
+                    console.log('GitHub 上还没有数据文件，将使用本地数据');
+                } else {
+                    console.error('从 GitHub 加载数据失败:', response.status);
+                }
+            } catch (error) {
+                console.error('加载 GitHub 数据出错:', error);
+            }
+        }
+        
+        // GitHub API 函数：保存数据到 GitHub
+        async function saveMemoriesToGitHub() {
+            if (!GITHUB_TOKEN) {
+                console.log('未配置 GitHub Token，仅保存到本地');
+                return;
+            }
+            
+            try {
+                // 先获取文件 SHA（如果存在）
+                let sha = null;
+                try {
+                    const getUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+                    const getResponse = await fetch(getUrl, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (getResponse.ok) {
+                        const data = await getResponse.json();
+                        sha = data.sha;
+                    }
+                } catch (e) {
+                    // 文件不存在，sha 保持为 null
+                }
+                
+                // 准备数据
+                const content = JSON.stringify(memories, null, 2);
+                const encodedContent = btoa(unescape(encodeURIComponent(content)));
+                
+                // 上传到 GitHub
+                const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+                const body = {
+                    message: `Update memories - ${new Date().toLocaleString('zh-CN')}`,
+                    content: encodedContent
+                };
+                
+                if (sha) {
+                    body.sha = sha; // 更新现有文件需要 SHA
+                }
+                
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (response.ok) {
+                    console.log('数据已保存到 GitHub');
+                } else {
+                    const error = await response.json();
+                    console.error('保存到 GitHub 失败:', error);
+                }
+            } catch (error) {
+                console.error('保存到 GitHub 出错:', error);
+            }
+        }
+        
         // 显示添加回忆模态框
         function showAddMemoryModal() {
             document.getElementById('memoryModal').classList.add('show');
@@ -1167,7 +1466,7 @@
         }
         
         // 保存回忆
-        function saveMemory() {
+        async function saveMemory() {
             const content = document.getElementById('memoryInput').value.trim();
             if (!content) {
                 alert('请输入回忆内容');
@@ -1183,15 +1482,23 @@
             
             memories.unshift(memory); // 添加到开头
             localStorage.setItem('coupleMemories', JSON.stringify(memories));
+            
+            // 同时保存到 GitHub（如果配置了 token）
+            await saveMemoriesToGitHub();
+            
             renderMemories();
             hideAddMemoryModal();
         }
         
         // 删除回忆
-        function deleteMemory(id) {
+        async function deleteMemory(id) {
             if (confirm('确定要删除这条回忆吗？')) {
                 memories = memories.filter(m => m.id !== id);
                 localStorage.setItem('coupleMemories', JSON.stringify(memories));
+                
+                // 同时更新 GitHub
+                await saveMemoriesToGitHub();
+                
                 renderMemories();
             }
         }
@@ -1285,7 +1592,7 @@
         }
         
         // 提交留言
-        function submitComment() {
+        async function submitComment() {
             const commentText = document.getElementById('commentInput').value.trim();
             if (!commentText && currentImageFiles.length === 0) {
                 alert('请输入留言或上传图片');
@@ -1308,6 +1615,9 @@
             
             memory.comments.push(comment);
             localStorage.setItem('coupleMemories', JSON.stringify(memories));
+            
+            // 同时保存到 GitHub
+            await saveMemoriesToGitHub();
             
             // 重新渲染留言
             renderComments(memory.comments);
@@ -1647,11 +1957,14 @@
         }
         
         // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             createSnowflakes();
             
             // 播放背景音乐
             playBackgroundMusic();
+            
+            // 页面加载时从 GitHub 加载回忆数据（如果配置了 token）
+            await loadMemoriesFromGitHub();
             
             // 页面加载时立即开始生成祝福语
             generateMultipleMessages();
